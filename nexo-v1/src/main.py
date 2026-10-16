@@ -64,13 +64,34 @@ def eliminar_proyecto(proyecto):
 def editar_proyecto(proyecto):
     print("\n========== EDITAR PROYECTO ==========")
 
-    nuevo_nombre = input("Nuevo nombre: ")
-    nueva_descripcion = input("Nueva descripcion: ")
+    nuevo_nombre = input("Nuevo nombre: ").strip()
 
-    proyecto["nombre"] = nuevo_nombre
-    proyecto["descripcion"] = nueva_descripcion
+    if not nuevo_nombre:
+        print("El nombre no puede estar vacio.")
+        return
 
-    print("Proyecto actualizado correctamente.")
+    nueva_descripcion = proyecto["descripcion"]
+
+    editar_desc = input("¿Desea editar la descripcion? (s/n): ")
+
+    if editar_desc.lower() == "s":
+        nueva_descripcion = input("Nueva descripcion: ").strip()
+    else:
+        print("Descripcion no editada.")
+
+    print("\nLos nuevos datos del proyecto son:")
+    print(f"Nombre: {nuevo_nombre}")
+    print(f"Descripcion: {nueva_descripcion}")
+
+    confirmar = input("\n¿Desea guardar los cambios? (s/n): ")
+
+    if confirmar.lower() == "s":
+        proyecto["nombre"] = nuevo_nombre
+        proyecto["descripcion"] = nueva_descripcion
+        print("Proyecto actualizado correctamente.")
+    else:
+        print("Edicion cancelada. No se realizaron cambios.")
+
 
 def menu_proyecto(proyecto):
     while True:
