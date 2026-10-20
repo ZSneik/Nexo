@@ -185,6 +185,26 @@ def menu_tareas(tarea):
 
             case _:
                 print("Opcion no valida.")
+
+def ver_tareas_completadas(proyecto):
+    print("\n========== TAREAS COMPLETADAS ==========")
+
+    tareas_completadas= [
+        tarea for tarea in proyecto["tareas"]
+          if tarea["estado"] == "completada"
+    ]
+    if not tareas_completadas:
+        print("No hay tareas completadas en este proyecto.")
+        return
+
+    for tarea in tareas_completadas:
+        print(
+            f"ID: {tarea['id']} | "
+            f"Nombre: {tarea['nombre']} | "
+            f"Descripcion: {tarea['descripcion']}"
+        )
+    
+
 def menu_proyecto(proyecto):
     while True:
         print(f"\n========== MENU PROYECTO: {proyecto['nombre']} ==========")
@@ -193,7 +213,8 @@ def menu_proyecto(proyecto):
         print("3: Eliminar proyecto")
         print("4: Crear tarea")
         print("5: Ver tareas")
-        print("6: Volver al menu principal")
+        print("6: Ver historial de tareas")
+        print("7: Volver al menu principal")
 
         opcion = input("Ingrese una opcion: ")
 
@@ -243,6 +264,9 @@ def menu_proyecto(proyecto):
                         print("No se encontro una tarea con ese ID.")
 
             case "6":
+                ver_tareas_completadas(proyecto)
+
+            case "7":
                 break
 
             case _:
