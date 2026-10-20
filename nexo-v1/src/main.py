@@ -1,5 +1,6 @@
 proyectos = []
 siguiente_id = 1
+estados_tarea=["pendiente", "en_proceso", "completada"]
 
 def crear_proyecto():
     global siguiente_id
@@ -92,14 +93,107 @@ def editar_proyecto(proyecto):
     else:
         print("Edicion cancelada. No se realizaron cambios.")
 
+def crear_tarea(proyecto):
+    print("\n========== CREAR TAREA ==========")
 
+    nombre = input("Ingrese el nombre de la tarea: ").strip()
+
+    if not nombre:
+        print("El nombre no puede estar vacio.")
+        return
+
+    descripcion = input("Ingrese la descripcion de la tarea: ").strip()
+
+    tarea = {
+        "id": len(proyecto["tareas"]) + 1,
+        "nombre": nombre,
+        "descripcion": descripcion,
+        "estado": "pendiente"
+    }
+
+    proyecto["tareas"].append(tarea)
+
+    print("\nTarea creada correctamente.")
+    print("ID:", tarea["id"])
+    print("Nombre:", tarea["nombre"])
+    print("Descripcion:", tarea["descripcion"])
+    print("Estado:", tarea["estado"])
+
+
+def editar_tarea(tarea):
+    print("\n========== EDITAR TAREA ==========")
+    print("Deja el nombre o la descripcion vacios para conservarlos.")
+
+    nuevo_nombre = input("Nuevo nombre: ").strip()
+    nueva_descripcion = input("Nueva descripcion: ").strip()
+
+    print("\nEstado actual:", tarea["estado"])
+    print("Seleccione el nuevo estado:")
+    print("0: Mantener estado actual")
+    print("1: Pendiente")
+    print("2: En proceso")
+    print("3: Completada")
+
+    opcion_estado = input("Ingrese una opcion: ")
+
+    if opcion_estado not in ("0", "1", "2", "3"):
+        print("Opcion no valida. No se realizaron cambios.")
+        return
+
+    if nuevo_nombre:
+        tarea["nombre"] = nuevo_nombre
+
+    if nueva_descripcion:
+        tarea["descripcion"] = nueva_descripcion
+
+    if opcion_estado != "0":
+        tarea["estado"] = estados_tarea[int(opcion_estado) - 1]
+
+    print("\nTarea actualizada correctamente.")
+    print("Nombre:", tarea["nombre"])
+    print("Descripcion:", tarea["descripcion"])
+    print("Estado:", tarea["estado"])
+
+
+def menu_tareas(tarea):
+    while True:
+        print(f"\n========== MENU TAREA: {tarea['nombre']} ==========")
+        print("1: Ver detalles de la tarea")
+        print("2: Editar tarea")
+        print("3: Eliminar tarea")
+        print("4: Volver al menu del proyecto")
+
+        opcion = input("Ingrese una opcion: ")
+
+        match opcion:
+            case "1":
+                print("\n========== DETALLES DE LA TAREA ==========")
+                print(f"ID: {tarea['id']}")
+                print(f"Nombre: {tarea['nombre']}")
+                print(f"Descripcion: {tarea['descripcion']}")
+                print(f"Estado: {tarea['estado']}")
+
+            case "2":
+                editar_tarea(tarea)
+
+            case "3":
+                if eliminar_tarea(tarea):
+                    break  
+
+            case "4":
+                break
+
+            case _:
+                print("Opcion no valida.")
 def menu_proyecto(proyecto):
     while True:
         print(f"\n========== MENU PROYECTO: {proyecto['nombre']} ==========")
         print("1: Ver detalles del proyecto")
         print("2: Editar proyecto")
         print("3: Eliminar proyecto")
-        print("4: Volver al menu principal")
+        print("4: Crear tarea")
+        print("5: Ver tareas")
+        print("6: Volver al menu principal")
 
         opcion = input("Ingrese una opcion: ")
 
@@ -116,8 +210,39 @@ def menu_proyecto(proyecto):
             case "3":
                 if eliminar_proyecto(proyecto):
                     break  
-
             case "4":
+                crear_tarea(proyecto)
+            
+            case "5":
+                if not proyecto["tareas"]:
+                    print("No hay tareas disponibles en este proyecto.")
+                else:
+                    print("\n========== TAREAS DEL PROYECTO ==========")
+
+                    for tarea in proyecto["tareas"]:
+                        print(
+                            f"ID: {tarea['id']} | "
+                            f"Nombre: {tarea['nombre']} | "
+                            f"Estado: {tarea['estado']}"
+                        )
+
+                    try:
+                        id_tarea = int(input("\nIngrese el ID de la tarea que desea abrir (0 para volver): "))
+                    except ValueError:
+                        print("El ID debe ser un numero entero.")
+                        break
+
+                    if id_tarea == 0:
+                        break
+
+                    for tarea in proyecto["tareas"]:
+                        if tarea["id"] == id_tarea:
+                            menu_tareas(tarea)
+                            break
+                    else:
+                        print("No se encontro una tarea con ese ID.")
+
+            case "6":
                 break
 
             case _:
