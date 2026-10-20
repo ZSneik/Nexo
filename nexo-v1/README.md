@@ -22,6 +22,7 @@ Actualmente, Nexo se encuentra en una etapa inicial de desarrollo. La versión P
 La versión Python permite:
 
 - **Crear proyectos:** registrar un nombre, una descripción y un identificador.
+- **Crear y editar tareas** Genera tareas dentro de cada proyecto y cambia su estado.
 - **Listar proyectos:** consultar los proyectos registrados durante la ejecución.
 - **Abrir proyectos:** acceder a un menú individual para cada proyecto.
 - **Consultar detalles:** visualizar el identificador, el nombre y la descripción.
@@ -73,8 +74,8 @@ Las siguientes etapas previstas para el proyecto son:
 - [x] Abrir un proyecto y consultar sus detalles.
 - [x] Editar la información de un proyecto.
 - [x] Eliminar proyectos con confirmación.
-- [ ] Crear, listar y eliminar tareas dentro de cada proyecto.
-- [ ] Permitir cambiar el estado de las tareas.
+- [x] Crear, y listar  tareas dentro de cada proyecto.
+- [x] Permitir cambiar el estado de las tareas.
 - [ ] Guardar y recuperar información mediante archivos JSON.
 - [ ] Separar el código en módulos a medida que aumente su complejidad.
 - [ ] Incorporar pruebas y mejorar el manejo de errores.
