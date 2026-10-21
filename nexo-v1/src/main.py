@@ -15,8 +15,29 @@ def guardar_datos():
         "siguiente_id": siguiente_id
     }
 
-    with open(ARCHIVO_DATOS, "w", encoding="utf-8") as archivo:
-        json.dump(datos, archivo, ensure_ascii=False, indent=4)
+    archivo_temporal = ARCHIVO_DATOS + ".tmp"
+
+    try:
+        with open(archivo_temporal, "w", encoding="utf-8") as archivo:
+            json.dump(
+                datos,
+                archivo,
+                ensure_ascii=False,
+                indent=4
+            )
+            archivo.flush()
+            os.fsync(archivo.fileno())
+
+        os.replace(archivo_temporal, ARCHIVO_DATOS)
+
+    except (OSError, TypeError, ValueError) as error:
+        print(f"Error al guardar los datos: {error}")
+
+        if os.path.exists(archivo_temporal):
+            try:
+                os.remove(archivo_temporal)
+            except OSError:
+                pass
 
 
 def cargar_datos():
@@ -29,12 +50,69 @@ def cargar_datos():
         with open(ARCHIVO_DATOS, "r", encoding="utf-8") as archivo:
             datos = json.load(archivo)
 
-        proyectos = datos.get("proyectos", [])
-        siguiente_id = datos.get("siguiente_id", 1)
+        if not isinstance(datos, dict):
+            raise ValueError("La raíz del JSON debe ser un diccionario.")
 
-    except json.JSONDecodeError:
-        print("Error: el archivo datos.json contiene datos inválidos.")
-        print("No se han cargado los datos.")
+        proyectos_cargados = datos.get("proyectos")
+        siguiente_id_cargado = datos.get("siguiente_id")
+
+        if not isinstance(proyectos_cargados, list):
+            raise ValueError("'proyectos' debe ser una lista.")
+
+        if (
+            not isinstance(siguiente_id_cargado, int)
+            or isinstance(siguiente_id_cargado, bool)
+            or siguiente_id_cargado < 1
+        ):
+            raise ValueError("'siguiente_id' debe ser un entero positivo.")
+
+        ids = []
+
+        for proyecto in proyectos_cargados:
+            if not isinstance(proyecto, dict):
+                raise ValueError("Se encontró un proyecto inválido.")
+
+            if not all(
+                clave in proyecto
+                for clave in ("id", "nombre", "descripcion", "tareas")
+            ):
+                raise ValueError("Un proyecto tiene campos incompletos.")
+
+            if (
+                not isinstance(proyecto["id"], int)
+                or isinstance(proyecto["id"], bool)
+                or proyecto["id"] < 1
+            ):
+                raise ValueError("Se encontró un ID de proyecto inválido.")
+
+            if not isinstance(proyecto["nombre"], str):
+                raise ValueError("El nombre de un proyecto no es válido.")
+
+            if not isinstance(proyecto["descripcion"], str):
+                raise ValueError("La descripción de un proyecto no es válida.")
+
+            if not isinstance(proyecto["tareas"], list):
+                raise ValueError("Las tareas deben estar guardadas en una lista.")
+
+            ids.append(proyecto["id"])
+
+        if len(ids) != len(set(ids)):
+            raise ValueError("Hay IDs de proyecto duplicados.")
+
+        if ids and siguiente_id_cargado <= max(ids):
+            raise ValueError("El siguiente ID ya está ocupado.")
+
+        proyectos = proyectos_cargados
+        siguiente_id = siguiente_id_cargado
+
+        print("Datos cargados correctamente.")
+
+    except (json.JSONDecodeError, ValueError, TypeError) as error:
+        print(f"Error al cargar los datos: {error}")
+        print("Los datos no se han cargado. No guardes encima del archivo dañado.")
+
+    except OSError as error:
+        print(f"No se pudo leer el archivo de datos: {error}")
 
 
 def crear_proyecto():
