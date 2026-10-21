@@ -2,6 +2,41 @@ proyectos = []
 siguiente_id = 1
 estados_tarea=["pendiente", "en_proceso", "completada"]
 
+import json
+import os
+
+CARPETA_PROGRAMA = os.path.dirname(os.path.abspath(__file__))
+ARCHIVO_DATOS = os.path.join(CARPETA_PROGRAMA, "datos.json")
+
+
+def guardar_datos():
+    datos = {
+        "proyectos": proyectos,
+        "siguiente_id": siguiente_id
+    }
+
+    with open(ARCHIVO_DATOS, "w", encoding="utf-8") as archivo:
+        json.dump(datos, archivo, ensure_ascii=False, indent=4)
+
+
+def cargar_datos():
+    global proyectos, siguiente_id
+
+    if not os.path.exists(ARCHIVO_DATOS):
+        return
+
+    try:
+        with open(ARCHIVO_DATOS, "r", encoding="utf-8") as archivo:
+            datos = json.load(archivo)
+
+        proyectos = datos.get("proyectos", [])
+        siguiente_id = datos.get("siguiente_id", 1)
+
+    except json.JSONDecodeError:
+        print("Error: el archivo datos.json contiene datos inválidos.")
+        print("No se han cargado los datos.")
+
+
 def crear_proyecto():
     global siguiente_id
 
@@ -19,6 +54,7 @@ def crear_proyecto():
 
     proyectos.append(proyecto)
     siguiente_id += 1
+    guardar_datos()
 
     print("\nProyecto creado correctamente.")
     print("Nombre:", nombre)
@@ -56,6 +92,7 @@ def eliminar_proyecto(proyecto):
 
     if confirmacion.lower() == 's':
         proyectos.remove(proyecto)
+        guardar_datos()
         print("Proyecto eliminado correctamente.")
         return True
     else:
@@ -89,6 +126,7 @@ def editar_proyecto(proyecto):
     if confirmar.lower() == "s":
         proyecto["nombre"] = nuevo_nombre
         proyecto["descripcion"] = nueva_descripcion
+        guardar_datos()
         print("Proyecto actualizado correctamente.")
     else:
         print("Edicion cancelada. No se realizaron cambios.")
@@ -112,12 +150,14 @@ def crear_tarea(proyecto):
     }
 
     proyecto["tareas"].append(tarea)
+    guardar_datos()
 
     print("\nTarea creada correctamente.")
     print("ID:", tarea["id"])
     print("Nombre:", tarea["nombre"])
     print("Descripcion:", tarea["descripcion"])
     print("Estado:", tarea["estado"])
+    
 
 
 def editar_tarea(tarea):
@@ -148,6 +188,7 @@ def editar_tarea(tarea):
 
     if opcion_estado != "0":
         tarea["estado"] = estados_tarea[int(opcion_estado) - 1]
+    guardar_datos()
 
     print("\nTarea actualizada correctamente.")
     print("Nombre:", tarea["nombre"])
@@ -160,8 +201,7 @@ def menu_tareas(tarea):
         print(f"\n========== MENU TAREA: {tarea['nombre']} ==========")
         print("1: Ver detalles de la tarea")
         print("2: Editar tarea")
-        print("3: Eliminar tarea")
-        print("4: Volver al menu del proyecto")
+        print("3: Volver al menu del proyecto")
 
         opcion = input("Ingrese una opcion: ")
 
@@ -177,10 +217,6 @@ def menu_tareas(tarea):
                 editar_tarea(tarea)
 
             case "3":
-                if eliminar_tarea(tarea):
-                    break  
-
-            case "4":
                 break
 
             case _:
@@ -189,20 +225,42 @@ def menu_tareas(tarea):
 def ver_tareas_completadas(proyecto):
     print("\n========== TAREAS COMPLETADAS ==========")
 
-    tareas_completadas= [
+    tareas_completadas = [
         tarea for tarea in proyecto["tareas"]
-          if tarea["estado"] == "completada"
+        if tarea["estado"] == "completada"
     ]
+
     if not tareas_completadas:
         print("No hay tareas completadas en este proyecto.")
         return
 
+    # Mostrar un resumen de las tareas completadas
     for tarea in tareas_completadas:
         print(
             f"ID: {tarea['id']} | "
             f"Nombre: {tarea['nombre']} | "
-            f"Descripcion: {tarea['descripcion']}"
+            f"Estado: {tarea['estado']}"
         )
+
+    detalles = input(
+        "\n¿Desea consultar una tarea completada? (s/n): "
+    )
+
+    if detalles.lower() == "s":
+        while True:
+            id_tarea = int(input(
+                "Ingrese el ID de la tarea que desea abrir (0 para volver): "
+            ))
+
+            if id_tarea == 0:
+                break
+
+            for tarea in tareas_completadas:
+                if tarea["id"] == id_tarea:
+                    menu_tareas(tarea)
+                    break
+            else:
+                print("No se encontró esa tarea.")
     
 
 def menu_proyecto(proyecto):
@@ -297,6 +355,7 @@ def menu_principal():
     opcion = input("Ingrese una opcion: ")
     return opcion
 
+cargar_datos()
 
 iniciar_programa = True
 
