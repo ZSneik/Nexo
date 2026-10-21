@@ -76,7 +76,7 @@ Las siguientes etapas previstas para el proyecto son:
 - [x] Eliminar proyectos con confirmación.
 - [x] Crear, y listar  tareas dentro de cada proyecto.
 - [x] Permitir cambiar el estado de las tareas.
-- [ ] Guardar y recuperar información mediante archivos JSON.
+- [x] Guardar y recuperar información mediante archivos JSON.
 - [ ] Separar el código en módulos a medida que aumente su complejidad.
 - [ ] Incorporar pruebas y mejorar el manejo de errores.
 - [ ] Ampliar la documentación y evaluar nuevas formas de interacción.
